@@ -16,6 +16,12 @@ type Task struct {
 	Number int    `json:"id"`
 }
 
+const (
+	MainColor = "\033[1;93m%s\033[0m"
+	TaskColor = "\033[1;94m"
+	NoColor   = "\033[0m"
+)
+
 func init() {
 	var err error
 	db, err = sql.Open("sqlite3", "/home/aaddssww/tasks.db")
@@ -37,13 +43,14 @@ var (
 
 func main() {
 	for {
-		fmt.Printf(`
+		fmt.Printf(MainColor, `
 What do you want to do?
 1 - Add new task
 2 - Mark task as done
 3 - Print all tasks
 4 - Print going tasks
 5 - Delete all tasks
+
 Input:`)
 
 		var input string
@@ -134,7 +141,7 @@ func printAllTasks(all bool) {
 		tasks = append(tasks, task)
 	}
 
-	fmt.Println("\n\n----------------------")
+	fmt.Println(TaskColor, "\n\n----------------------")
 
 	for _, task := range tasks {
 		var done string
@@ -148,5 +155,5 @@ func printAllTasks(all bool) {
 		fmt.Printf("#%d %s %s\n", task.Number, done, task.Name)
 	}
 
-	fmt.Println("----------------------")
+	fmt.Println("----------------------", NoColor)
 }
