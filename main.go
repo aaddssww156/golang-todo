@@ -18,18 +18,12 @@ type Task struct {
 
 func init() {
 	var err error
-	db, err = sql.Open("sqlite3", "./tasks.db")
+	db, err = sql.Open("sqlite3", "/home/aaddssww/tasks.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	q, err := db.Prepare("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), done BOOLEAN)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	q.Exec()
-
-	q, err = db.Prepare(`INSERT INTO tasks (id, name, done) VALUES (1, "Do a homework", false), (2, "Wash the dishes", true)`)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,9 +37,14 @@ var (
 
 func main() {
 	for {
-		printAllTasks()
-
-		fmt.Printf("\nWhat do you want to do?\n1 - Add new task\n2 - Mark task as done\nInput:")
+		fmt.Printf(`
+What do you want to do?
+1 - Add new task
+2 - Mark task as done
+3 - Print all tasks
+4 - Print going tasks
+5 - Delete all tasks
+Input:`)
 
 		var input string
 		fmt.Scan(&input)
@@ -54,9 +53,22 @@ func main() {
 			addNewTask()
 		} else if input == "2" {
 			markTaskAsDone()
+		} else if input == "3" {
+			printAllTasks(true)
+		} else if input == "4" {
+			printAllTasks(false)
+		} else if input == "5" {
+			deleteAll()
 		} else {
 			fmt.Println("Wrong input!")
 		}
+	}
+}
+
+func deleteAll() {
+	_, err := db.Exec("DELETE FROM tasks")
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
@@ -87,24 +99,20 @@ func addNewTask() {
 		log.Fatal(err)
 	}
 
-	_, err = q.Exec(taskName, false)
+	_, err = q.Exec(taskName[:len(taskName)-1], false)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func printAllTasks() {
-	data, err := db.Query("SELECT COUNT(*) FROM tasks")
-	if err != nil {
-		log.Fatal(err)
+func printAllTasks(all bool) {
+	var query string
+	if all {
+		query = "SELECT * FROM tasks"
+	} else {
+		query = "SELECT * FROM tasks where done = false"
 	}
-
-	var count int
-	for data.Next() {
-		data.Scan(&count)
-	}
-
-	rows, err := db.Query("SELECT * FROM tasks")
+	rows, err := db.Query(query)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -126,6 +134,8 @@ func printAllTasks() {
 		tasks = append(tasks, task)
 	}
 
+	fmt.Println("\n\n----------------------")
+
 	for _, task := range tasks {
 		var done string
 
@@ -138,4 +148,5 @@ func printAllTasks() {
 		fmt.Printf("#%d %s %s\n", task.Number, done, task.Name)
 	}
 
+	fmt.Println("----------------------")
 }
