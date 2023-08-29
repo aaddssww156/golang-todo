@@ -49,7 +49,21 @@ func main() {
 }
 
 func markAsDone() {
-	panic("unimplemented")
+	var number string
+	fmt.Printf("\nInput a number of task")
+	fmt.Scanln(&number)
+
+	for _, task := range tasks {
+		if number == task.Number {
+			task.Done = true
+		}
+	}
+
+	updateTask(number)
+}
+
+func updateTask(number string) {
+
 }
 
 func addTask() {
@@ -67,12 +81,12 @@ func addTask() {
 		Number: strconv.Itoa(len(tasks) + 1),
 	}
 
-	apendTaskToAFile(newTask)
+	appendTaskToAFile(newTask)
 
 	tasks = append(tasks, newTask)
 }
 
-func apendTaskToAFile(task Task) {
+func appendTaskToAFile(task Task) {
 	file, err := os.OpenFile("tasks.txt", os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
@@ -107,7 +121,6 @@ func apendTaskToAFile(task Task) {
 
 func loadTasks(file *os.File) []Task {
 	scanner := bufio.NewScanner(file)
-	// tasks := make([]Task, )
 	var tasks []Task
 
 	i := 0
