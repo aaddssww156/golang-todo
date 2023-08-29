@@ -50,6 +50,7 @@ What do you want to do?
 3 - Print all tasks
 4 - Print going tasks
 5 - Delete all tasks
+6 - Delete specific task
 
 Input:`)
 
@@ -66,10 +67,25 @@ Input:`)
 			printAllTasks(false)
 		} else if input == "5" {
 			deleteAll()
+		} else if input == "6" {
+			deleteTask()
 		} else {
 			fmt.Println("Wrong input!")
 		}
 	}
+}
+
+func deleteTask() {
+	fmt.Printf("\nEnter task number: ")
+	var number string
+	fmt.Scanln(&number)
+
+	q, err := db.Prepare("DELETE FROM tasks WHERE id = $1")
+	if err != nil {
+		log.Println(err)
+	}
+
+	q.Exec(number)
 }
 
 func deleteAll() {
